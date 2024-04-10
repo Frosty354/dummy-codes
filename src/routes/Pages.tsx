@@ -1,6 +1,6 @@
 import {routeprefixes} from './routePrefixes'
 import CkeditorBase from '../Components/CkeditorBase'
-import ReactFlowBase from '../Components/ReactFlowBase'
+import ReactFlowBase from '../Components/ReactFlow'
 import ExcelCopy from '../Components/ExcelCopy'
 import {Page} from './types'
 import Homepage from '../Components/Homepage'

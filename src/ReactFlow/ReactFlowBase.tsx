@@ -13,15 +13,14 @@ import ReactFlow, {
   NodeChange,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import ContextMenu from '../ReactFlow/ContextMenu';
+import ContextMenu from './ContextMenu';
 import  {  applyEdgeChanges, applyNodeChanges } from 'reactflow';
-import TextUpdaterNode from '../ReactFlow/TextUpdaterNode'
+import TextUpdaterNode from './TextUpdaterNode'
 
 const initialNodes = [
   { 
     id: 'node-1', 
-    type: 'input',
-    // type:'textupdater'
+
     position: { x: 0, y: 0 }, 
     data: { label: 'Parent Node' } 
   },
@@ -30,7 +29,7 @@ const initialNodes = [
 let id = 1;
 const getId = () => `${id++}`;
 
-const AddNodeOnEdgeDrop = () => {
+const ReactFlowBase = () => {
   const reactFlowWrapper = useRef(null);
   const connectingNodeId = useRef(null);
   const [nodes, setNodes] = useNodesState(initialNodes);
@@ -108,9 +107,11 @@ const AddNodeOnEdgeDrop = () => {
   );
   const onPaneClick = useCallback(() => setMenu({}), [setMenu]);
   const nodeTypes = useMemo(
-    ()=> ({
-      textUpdater: TextUpdaterNode
-    }) ,[])
+    () => ({
+      default: TextUpdaterNode, // Use EditableNode for all nodes by default
+    }),
+    [],
+  );
   return (
     <div style={{height:'100vh'}} ref={reactFlowWrapper}>
       <ReactFlow
@@ -142,6 +143,6 @@ const AddNodeOnEdgeDrop = () => {
 
 export default () => (
   <ReactFlowProvider>
-    <AddNodeOnEdgeDrop />
+    <ReactFlowBase />
   </ReactFlowProvider>
 );
