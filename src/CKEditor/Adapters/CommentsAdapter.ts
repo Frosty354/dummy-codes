@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { ClassicEditor } from "@ckeditor/ckeditor5-editor-classic";
-import appData from '../../Appdata'
+import appData from '../../AppData/CkEditorData'
 
 // import axios from "axios";
 const {appData1} = appData

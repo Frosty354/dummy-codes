@@ -1,6 +1,7 @@
+import { IconButton, TextField } from '@mui/material';
 import React, { useCallback, useState } from 'react';
 import { Handle, Position } from 'reactflow';
-
+import EditIcon from '@mui/icons-material/Edit';
 interface EditableNodeProps {
   data: {
     label: string;
@@ -16,19 +17,25 @@ const TextUpdaterNode: React.FC<EditableNodeProps> = ({ data, isConnectable, id 
     // Here, you can update the node data with the new value
     // For example, you can call a function to update the node data in the parent component
   }, []);
-
+const[textDisabled,setTextDisabled]=useState(true);
   return (
-    <div className="editable-node">
-      <div>
-        <input
-          placeholder="Enter label"
-          id="text"
-          name="text"
+    <div >
+      
+        
+        <TextField
+          name={'text'}
           value={nodeLabel}
           onChange={onChange}
-          className="nodrag"
+        
+          size='small'
+          disabled={textDisabled}
+          InputProps={{
+            endAdornment:
+            <IconButton size='small' onClick={()=>setTextDisabled(prevState=>!prevState)}><EditIcon color={'action'}/></IconButton>
+          }}
+          
         />
-      </div>
+      
       <Handle type="target" position={Position.Top} id={`handle-${id}`} isConnectable={isConnectable} />
       <Handle type="source" position={Position.Bottom} id={`handle-${id}`} isConnectable={isConnectable} />
     </div>

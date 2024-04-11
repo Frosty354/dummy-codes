@@ -1,5 +1,5 @@
 //@ts-nocheck
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
   useNodesState,
   useEdgesState,
@@ -17,10 +17,12 @@ import ContextMenu from './ContextMenu';
 import  {  applyEdgeChanges, applyNodeChanges } from 'reactflow';
 import TextUpdaterNode from './TextUpdaterNode'
 
+import './styles.css'
+import DownloadButton from './DownloadButton';
 const initialNodes = [
   { 
     id: 'node-1', 
-
+    level: 0, 
     position: { x: 0, y: 0 }, 
     data: { label: 'Parent Node' } 
   },
@@ -28,6 +30,7 @@ const initialNodes = [
 
 let id = 1;
 const getId = () => `${id++}`;
+
 
 const ReactFlowBase = () => {
   const reactFlowWrapper = useRef(null);
@@ -108,9 +111,9 @@ const ReactFlowBase = () => {
   const onPaneClick = useCallback(() => setMenu({}), [setMenu]);
   const nodeTypes = useMemo(
     () => ({
-      default: TextUpdaterNode, // Use EditableNode for all nodes by default
+      default: TextUpdaterNode, 
     }),
-    [],
+    []
   );
   return (
     <div style={{height:'100vh'}} ref={reactFlowWrapper}>
@@ -135,7 +138,8 @@ const ReactFlowBase = () => {
       <Background />
 
       
-      {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
+      {menu ? <ContextMenu onClick={onPaneClick} {...menu} />:null}
+      <DownloadButton />
     </ReactFlow>
     </div>
   );

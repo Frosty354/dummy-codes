@@ -17,4 +17,11 @@
   .context-menu button:hover {
     background: white;
   }
+  .react-flow__node {
+   
+    
+    width: 200px;
+    
+    
+  }
   
