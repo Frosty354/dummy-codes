@@ -39,9 +39,9 @@ export default function DialogueBase() {
 
   return (
     <Fragment>
-      <Button variant="outlined" onClick={handleClickOpen}>
+      <button  onClick={handleClickOpen}>
         Open full-screen dialog
-      </Button>
+      </button>
       <Dialog
         fullScreen
         open={open}

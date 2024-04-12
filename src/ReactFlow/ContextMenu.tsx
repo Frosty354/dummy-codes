@@ -16,6 +16,7 @@ import AddIcon from '@mui/icons-material/Add';
 import Typography from '@mui/material/Typography';
 import { blue } from '@mui/material/colors';
 import DialogueBase from './FlowContent/DialogueBase';
+
 interface ContextMenuProps {
     id: string;
     top: number;

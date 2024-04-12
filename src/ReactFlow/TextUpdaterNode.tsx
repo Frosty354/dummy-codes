@@ -5,6 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 interface EditableNodeProps {
   data: {
     label: string;
+    level:number;
   };
   isConnectable: boolean;
   id: string;
@@ -18,10 +19,11 @@ const TextUpdaterNode: React.FC<EditableNodeProps> = ({ data, isConnectable, id 
     // For example, you can call a function to update the node data in the parent component
   }, []);
 const[textDisabled,setTextDisabled]=useState(true);
+
   return (
     <div >
       
-        
+
         <TextField
           name={'text'}
           value={nodeLabel}

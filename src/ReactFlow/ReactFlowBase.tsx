@@ -19,24 +19,38 @@ import TextUpdaterNode from './TextUpdaterNode'
 
 import './styles.css'
 import DownloadButton from './DownloadButton';
-const initialNodes = [
-  { 
-    id: 'node-1', 
-    level: 0, 
-    position: { x: 0, y: 0 }, 
-    data: { label: 'Parent Node' } 
-  },
-];
+import { findParentNode } from '../utils/ReactFlowUtils';
+import SegmentationMenu from './SegmentationMenu';
 
+
+//parent node canont be deleted
+//hint screen
+const initialNodes = [
+  {
+      "id": "node-1",
+      "position": {
+          "x": 0,
+          "y": 0
+      },
+      "data": {
+        //comes from create project
+          "label": "{{ProjectName}}",
+          "level": 0
+      },
+      
+  }
+
+]
+const initialEdges = []
 let id = 1;
-const getId = () => `${id++}`;
+const getId = () => `${Math.random()*10000000}`;
 
 
 const ReactFlowBase = () => {
   const reactFlowWrapper = useRef(null);
   const connectingNodeId = useRef(null);
   const [nodes, setNodes] = useNodesState(initialNodes);
-  const [edges, setEdges] = useEdgesState([]);
+  const [edges, setEdges] = useEdgesState(initialEdges);
   const [menu, setMenu] = useState<{ id?: string; top: number; left?: number; right?: number; bottom?: number }>();
   const ref = useRef<any>(null);
   const { screenToFlowPosition } = useReactFlow();
@@ -62,14 +76,21 @@ const ReactFlowBase = () => {
       if (targetIsPane) {
         // we need to remove the wrapper bounds, in order to get the correct position
         const id = getId();
+        const parentNodeId = connectingNodeId.current;
+
+        // Calculate the level of the new node based on its parent
+        const parentNode = nodes.find((node) => node.id === parentNodeId);
+        const parentLevel=parentNode?parentNode.data.level||0:0;
+        const newLevel=parentLevel+1
+       
         const newNode = {
           id:id,
-          // type:'textUpdater',
+
           position: screenToFlowPosition({
             x: event.clientX,
             y: event.clientY,
           }),
-          data: { label: `Node ${id}` },
+          data: { label: `Node ${id}`,level:newLevel, },
           origin: [0.5, 0.0],
         };
 
@@ -79,7 +100,7 @@ const ReactFlowBase = () => {
         );
       }
     },
-    [screenToFlowPosition],
+    [screenToFlowPosition,nodes],
   );
   const onNodeContextMenu = useCallback(
     (event: { preventDefault: () => void; clientY: number; clientX: number; }, node: { id: any; }) => {
@@ -111,10 +132,48 @@ const ReactFlowBase = () => {
   const onPaneClick = useCallback(() => setMenu({}), [setMenu]);
   const nodeTypes = useMemo(
     () => ({
-      default: TextUpdaterNode, 
+      default: (props) => {
+        
+        const { id, data,isConnectable } = props;
+        
+          if(data.level%2){
+            return <SegmentationMenu data={data} id={id} isConnectable={isConnectable}/>
+          }
+          else return <TextUpdaterNode data={data} id={id} isConnectable={isConnectable} />;
+        
+      },
     }),
     []
   );
+
+  // [
+  //   nodes,edges,
+  //   structure:{
+  //   id,
+  //   data,
+  //   children:[
+  //     {
+  //     id,
+  //     data,
+  //     children:[]
+  //   },
+  //   {
+  //     id,
+  //     data,
+  //     children:[]
+  //   },
+  //   {
+  //     id,
+  //     data,
+  //     children:[]
+  //   }]
+  // }]
+
+
+useEffect(()=>{
+  console.log("check nodes",nodes)
+console.log("check edges",edges)
+},[nodes])
   return (
     <div style={{height:'100vh'}} ref={reactFlowWrapper}>
       <ReactFlow
@@ -130,7 +189,8 @@ const ReactFlowBase = () => {
       onNodeContextMenu={onNodeContextMenu}
       nodeTypes={nodeTypes}
       onNodeClick={(event: React.MouseEvent, node: Node)=>{
-        console.log(node)
+        
+        console.log("Parent node",findParentNode(nodes,edges,node.id))
       }}
       fitView
       
