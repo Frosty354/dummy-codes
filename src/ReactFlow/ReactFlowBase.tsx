@@ -10,7 +10,7 @@ import ReactFlow, {
   Edge,
   Background,
   EdgeChange,
-  NodeChange,
+  NodeChange,getConnectedEdges,getIncomers,getOutgoers
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import ContextMenu from './ContextMenu';
@@ -19,7 +19,7 @@ import TextUpdaterNode from './TextUpdaterNode'
 
 import './styles.css'
 import DownloadButton from './DownloadButton';
-import { findParentNode } from '../utils/ReactFlowUtils';
+import { findParentNode, getChildNodeIds } from '../utils/ReactFlowUtils';
 import SegmentationMenu from './SegmentationMenu';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -181,12 +181,41 @@ const ReactFlowBase = () => {
   //     children:[]
   //   }]
   // }]
+const onNodesDelete=useCallback(
+  (deleted)=>{
+    let childNodeIds=[]
+      deleted.forEach((item)=>{
+         childNodeIds=getChildNodeIds(item.id,nodes,edges)
+      })
+      setEdges(
+        deleted.reduce((acc, node) => {
+          const incomers = getIncomers(node, nodes, edges);
+          
+          const outgoers = getOutgoers(node, nodes, edges);
+          console.log("outgoers",outgoers)
+          const connectedEdges = getConnectedEdges([node], edges);
 
+          const remainingEdges = acc.filter((edge) => !connectedEdges.includes(edge));
 
-useEffect(()=>{
-  console.log("check nodes",nodes)
-console.log("check edges",edges)
-},[nodes])
+          const createdEdges = incomers.flatMap(({ id: source }) =>
+            outgoers.map(({ id: target }) => ({ id: `${source}->${target}`, source, target }))
+          );
+
+          return [...remainingEdges];
+        }, edges)
+        
+      );
+
+      const remainingNodes = nodes.filter(node => !childNodeIds.includes(node.id));
+      setNodes(remainingNodes);
+      
+  },[nodes,edges])
+
+// useEffect(()=>{
+//   console.log("check nodes",nodes)
+  
+// console.log("check edges",edges)
+// },[nodes])
   return (
     <div style={{height:'100vh'}} ref={reactFlowWrapper}>
       <ReactFlow
@@ -196,6 +225,7 @@ console.log("check edges",edges)
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
+      onNodesDelete={onNodesDelete}
       onConnectStart={onConnectStart}
       onConnectEnd={onConnectEnd}
       onPaneClick={onPaneClick}
@@ -203,7 +233,8 @@ console.log("check edges",edges)
       nodeTypes={nodeTypes}
       onNodeClick={(event: React.MouseEvent, node: Node)=>{
         
-        console.log("Parent node",findParentNode(nodes,edges,node.id))
+        // console.log("Parent node",findParentNode(nodes,edges,node.id))
+        // console.log('get all child nodes',getChildNodeIds(node.id,nodes,edges))
       }}
       fitView
       
