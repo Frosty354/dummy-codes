@@ -21,36 +21,41 @@ import './styles.css'
 import DownloadButton from './DownloadButton';
 import { findParentNode } from '../utils/ReactFlowUtils';
 import SegmentationMenu from './SegmentationMenu';
-
+import { v4 as uuidv4 } from 'uuid';
 
 //parent node canont be deleted
 //hint screen
-const initialNodes = [
-  {
-      "id": "node-1",
-      "position": {
-          "x": 0,
-          "y": 0
-      },
-      "data": {
-        //comes from create project
-          "label": "{{ProjectName}}",
-          "level": 0
-      },
-      
-  }
 
-]
-const initialEdges = []
+const initialValues={
+    "initialEdges": [
+    ],
+    "initialNodes": [
+      {
+        "id": "3e7ce7b1-89a5-4594-9159-a5e0e48cf13b",
+        "position": {
+            "x": 0,
+            "y": 0
+        },
+        "data": {
+          //comes from create project
+            "label": "{{ProjectName}}",
+            "level": 0
+        },
+        
+    }
+        
+    ]
+}
+
 let id = 1;
-const getId = () => `${Math.random()*10000000}`;
+const getId = () => `${uuidv4()}`;
 
 
 const ReactFlowBase = () => {
   const reactFlowWrapper = useRef(null);
   const connectingNodeId = useRef(null);
-  const [nodes, setNodes] = useNodesState(initialNodes);
-  const [edges, setEdges] = useEdgesState(initialEdges);
+  const [nodes, setNodes] = useNodesState(initialValues.initialNodes);
+  const [edges, setEdges] = useEdgesState(initialValues.initialEdges);
   const [menu, setMenu] = useState<{ id?: string; top: number; left?: number; right?: number; bottom?: number }>();
   const ref = useRef<any>(null);
   const { screenToFlowPosition } = useReactFlow();
@@ -67,6 +72,13 @@ const ReactFlowBase = () => {
     connectingNodeId.current = nodeId;
   }, []);
 
+
+  const findLevel=(parentNodeId)=>{
+    const parentNode = nodes.find((node) => node.id === parentNodeId);
+    const parentLevel=parentNode?parentNode.data.level||0:0;
+    return parentLevel
+  }
+
   const onConnectEnd = useCallback(
     (event:any) => {
       if (!connectingNodeId.current) return;
@@ -79,19 +91,19 @@ const ReactFlowBase = () => {
         const parentNodeId = connectingNodeId.current;
 
         // Calculate the level of the new node based on its parent
-        const parentNode = nodes.find((node) => node.id === parentNodeId);
-        const parentLevel=parentNode?parentNode.data.level||0:0;
-        const newLevel=parentLevel+1
+        
+        const newLevel=findLevel(parentNodeId)+1
        
         const newNode = {
           id:id,
-
           position: screenToFlowPosition({
             x: event.clientX,
             y: event.clientY,
           }),
           data: { label: `Node ${id}`,level:newLevel, },
           origin: [0.5, 0.0],
+          // source: connectingNodeId.current,
+          // target:id
         };
 
         setNodes((nds) => nds.concat(newNode));
@@ -129,7 +141,8 @@ const ReactFlowBase = () => {
     (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [setEdges]
   );
-  const onPaneClick = useCallback(() => setMenu({}), [setMenu]);
+  const onPaneClick = useCallback(() => 
+  setMenu({}), [setMenu]);
   const nodeTypes = useMemo(
     () => ({
       default: (props) => {
@@ -198,7 +211,7 @@ console.log("check edges",edges)
       <Background />
 
       
-      {menu ? <ContextMenu onClick={onPaneClick} {...menu} />:null}
+      {menu && <ContextMenu  onClick={onPaneClick} {...menu} />}
       <DownloadButton />
     </ReactFlow>
     </div>
